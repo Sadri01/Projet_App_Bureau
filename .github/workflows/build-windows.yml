@@ -1,0 +1,31 @@
+# Construit l'installeur Windows (.exe) à chaque envoi de code.
+# Le fichier est téléchargeable dans l'onglet « Actions » du dépôt GitHub.
+name: Installeur Windows
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test
+
+      - name: Construire l'installeur
+        run: npx electron-builder --win nsis --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Mon-Planning-Installeur
+          path: dist/*.exe
+          retention-days: 30

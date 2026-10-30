@@ -1,1 +1,130 @@
-# Projet_App_Bureau
+# Mon Planning
+
+Application de bureau pour Windows 11 : emploi du temps, to-do list, rappels au premier plan et widgets sur le bureau.
+
+## Fonctionnalités
+
+**Emploi du temps**
+- Vue semaine type agenda. Pour créer une activité, clique sur un créneau ou glisse sur plusieurs heures.
+- Pour déplacer une activité, glisse-la. Pour changer sa durée, tire son bord du bas.
+- Chaque activité a une couleur, des horaires, des notes et une répétition : une fois, tous les jours, ou certains jours de la semaine, avec une date de fin.
+- Tu peux supprimer une seule séance d'une activité répétée.
+- Pour planifier une tâche de la to-do list, glisse-la dans l'agenda.
+- Les tâches qui ont une échéance apparaissent en haut du jour concerné.
+
+**Rappels**
+- Un pop-up s'affiche au premier plan, avec un son, au début de chaque activité.
+- Un rappel peut aussi arriver avant le début : 5, 10, 15, 30 ou 60 min, réglable par activité.
+- Boutons du pop-up : **J'y vais** (la séance compte comme faite), **Dans 5 min** et **Passer**.
+- Les échéances des tâches déclenchent aussi un rappel.
+- Mode **Ne pas déranger** : 30 min, 1 h, 2 h ou jusqu'au lendemain.
+- 5 sons au choix, ou ton propre fichier MP3, WAV ou OGG.
+
+**To-do list**
+- Statuts : Urgent, Normal, Terminée, Abandonnée. Les tâches terminées restent dans l'historique.
+- Catégories personnalisées avec couleur (Travail, Sport, Japonais…).
+- Sous-tâches, échéance, notes et recherche.
+
+**Récapitulatif**
+- Camembert de la répartition des activités par jour, semaine ou mois.
+- Temps prévu et temps réalisé, avec la progression par activité.
+- Camembert des tâches terminées par catégorie.
+
+**Widgets de bureau**
+- To-do list et/ou emploi du temps du jour, ou aucun des deux.
+- Ils restent sur le bureau, derrière tes fenêtres.
+- <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>W</kbd> les fait passer au premier plan. Ils repassent derrière dès que tu cliques ailleurs.
+- On peut les déplacer, les redimensionner et régler leur opacité.
+
+**Et aussi**
+- 3 thèmes : Minimaliste coloré, Sombre, Survie (post-apocalyptique).
+- Option pour lancer l'application au démarrage de Windows.
+- Une icône près de l'horloge : fermer la fenêtre n'arrête pas les rappels.
+- Minuteur Pomodoro. Il peut se lancer quand tu cliques sur « J'y vais ».
+- Import d'agendas externes : Google Agenda ou Outlook par lien `.ics`, ou un fichier `.ics`.
+- Sauvegarde automatique chaque jour, plus un export et une restauration manuels.
+
+## Raccourcis clavier
+
+Tu peux les modifier dans **Réglages → Raccourcis clavier**.
+
+| Raccourci | Action |
+|---|---|
+| <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd> | Ajouter une tâche depuis n'importe où |
+| <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>W</kbd> | Passer les widgets au premier plan |
+| <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>P</kbd> | Ouvrir la fenêtre principale |
+| <kbd>←</kbd> / <kbd>→</kbd> | Semaine précédente / suivante (dans l'emploi du temps) |
+
+## Saisie rapide d'une tâche
+
+Dans la barre d'ajout, le widget ou la fenêtre <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>, tu peux écrire par exemple :
+
+```
+Réviser les kanji !urgent #japonais @demain 18h
+```
+
+- `!urgent` ou `!` met la tâche en urgent.
+- `#nom` ajoute une catégorie existante. Les accents et majuscules ne comptent pas.
+- `@demain`, `@lundi`, `@12/11`, `@18h` ou `@demain 18h30` fixent l'échéance.
+
+## Importer Google Agenda
+
+1. Ouvre Google Agenda sur ordinateur, puis **Paramètres** et l'agenda voulu.
+2. Copie l'**Adresse secrète au format iCal**.
+3. Dans Mon Planning, va dans **Réglages → Agendas externes**, colle le lien et clique sur **Ajouter**.
+
+L'agenda est actualisé toutes les 30 minutes. Il est en lecture seule dans Mon Planning.
+
+## Installer et tester
+
+### Option 1 : télécharger l'installeur (le plus simple)
+
+1. Sur GitHub, ouvre l'onglet **Actions** du dépôt.
+2. Clique sur la dernière exécution réussie de **Installeur Windows**.
+3. En bas de la page, télécharge **Mon-Planning-Installeur**. C'est un fichier zip qui contient le `.exe`.
+4. Lance `Mon-Planning-Setup-x.y.z.exe`.
+
+Windows SmartScreen peut afficher « Windows a protégé votre ordinateur », car l'application n'est pas signée. Clique sur **Informations complémentaires**, puis **Exécuter quand même**.
+
+### Option 2 : lancer depuis le code
+
+Il faut [Node.js](https://nodejs.org) (version 22 ou plus).
+
+```bash
+npm install
+npm start
+```
+
+- `npm test` lance les tests automatiques.
+- `npm run dist` construit l'installeur Windows dans `dist/`.
+
+Le lancement au démarrage de Windows ne fonctionne qu'avec la version installée.
+
+## Où sont mes données ?
+
+Tout reste sur ton ordinateur, dans `%APPDATA%\Mon Planning\` :
+- `donnees.json` contient tes données ;
+- `sauvegardes\` contient les copies quotidiennes (les 10 dernières).
+
+## Organisation du code
+
+```
+src/
+  main/          processus principal (Electron)
+    main.js        fenêtres, icône près de l'horloge, raccourcis, démarrage auto
+    scheduler.js   moteur de rappels
+    store.js       enregistrement des données et sauvegardes
+    pomodoro.js    minuteur
+    ics.js         import d'agendas
+  preload.js     pont sécurisé entre l'interface et le processus principal
+  shared/
+    schedule.js    calculs de dates et de récurrence (utilisés partout)
+  renderer/      interface
+    index.html     fenêtre principale
+    popup.html     pop-up de rappel
+    widget.html    widgets de bureau
+    quickadd.html  ajout rapide de tâche
+    css/           thèmes et styles
+    js/            une vue par fichier (agenda, todo, stats, pomodoro, réglages)
+test/            tests automatiques
+```

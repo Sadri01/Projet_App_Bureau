@@ -1,0 +1,56 @@
+{
+  "name": "mon-planning",
+  "productName": "Mon Planning",
+  "version": "0.1.0",
+  "description": "Emploi du temps, to-do list, rappels et widgets de bureau",
+  "main": "src/main/main.js",
+  "author": "sadri01",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "dist": "electron-builder --win nsis",
+    "icon": "node scripts/make-icon.js"
+  },
+  "dependencies": {
+    "chart.js": "4.5.1",
+    "node-ical": "0.27.2"
+  },
+  "devDependencies": {
+    "electron": "44.7.2",
+    "electron-builder": "26.17.0"
+  },
+  "build": {
+    "appId": "com.sadri01.monplanning",
+    "productName": "Mon Planning",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "src/assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Mon Planning",
+      "artifactName": "Mon-Planning-Setup-${version}.${ext}"
+    },
+    "linux": {
+      "target": [
+        "dir"
+      ],
+      "icon": "src/assets/icon.png"
+    }
+  }
+}

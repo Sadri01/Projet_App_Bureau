@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' data:"
+    />
+    <title>Mon Planning</title>
+    <link rel="stylesheet" href="css/themes.css" />
+    <link rel="stylesheet" href="css/app.css" />
+  </head>
+  <body>
+    <div class="app">
+      <nav class="sidebar">
+        <div class="brand">
+          <div class="brand-mark"></div>
+          <div class="brand-name">Mon Planning</div>
+        </div>
+        <button class="nav-btn" data-view="agenda">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+          Emploi du temps
+        </button>
+        <button class="nav-btn" data-view="todo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h12M9 12h12M9 18h12"/><path d="m3 6 1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/></svg>
+          To-do list
+        </button>
+        <button class="nav-btn" data-view="stats">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg>
+          Récapitulatif
+        </button>
+        <button class="nav-btn" data-view="pomodoro">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>
+          Pomodoro
+        </button>
+        <button class="nav-btn" data-view="reglages">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+          Réglages
+        </button>
+
+        <div class="sidebar-bottom">
+          <div class="mini-pomo" id="mini-pomo" title="Ouvrir le Pomodoro">
+            <div class="small muted" id="mini-pomo-label"></div>
+            <div class="time" id="mini-pomo-time"></div>
+          </div>
+          <div class="dnd-badge" id="dnd-badge" hidden></div>
+        </div>
+      </nav>
+
+      <main>
+        <section class="view" id="view-agenda"></section>
+        <section class="view" id="view-todo"></section>
+        <section class="view" id="view-stats"></section>
+        <section class="view" id="view-pomodoro"></section>
+        <section class="view" id="view-reglages"></section>
+      </main>
+    </div>
+
+    <script src="../shared/schedule.js"></script>
+    <script src="../../node_modules/chart.js/dist/chart.umd.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/sounds.js"></script>
+    <script src="js/modal.js"></script>
+    <script src="js/activity-form.js"></script>
+    <script src="js/agenda.js"></script>
+    <script src="js/todo.js"></script>
+    <script src="js/stats.js"></script>
+    <script src="js/pomodoro.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
