@@ -10,6 +10,8 @@ const {
   dialog,
   shell,
   nativeImage,
+  clipboard,
+  ClipboardItem,
 } = require('electron');
 const fs = require('fs');
 const path = require('path');
@@ -60,8 +62,15 @@ function broadcast(channel, payload) {
   for (const w of allWindows()) w.webContents.send(channel, payload);
 }
 
+// Les feuilles de brainstorming peuvent être lourdes : elles ne sont pas diffusées à chaque changement
+function publicState() {
+  const rest = { ...store.data };
+  delete rest.boards;
+  return rest;
+}
+
 function broadcastState() {
-  broadcast('state', store.data);
+  broadcast('state', publicState());
   const bg = THEME_SURFACE[store.data.settings.theme] || THEME_SURFACE.colore;
   for (const w of Object.values(widgetWins)) if (w && !w.isDestroyed()) w.setBackgroundColor(bg);
   refreshTrayMenu();
@@ -424,7 +433,29 @@ async function refreshAllFeeds() {
 const SOUND_MIME = { '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.ogg': 'audio/ogg', '.m4a': 'audio/mp4' };
 
 function registerIpc() {
-  ipcMain.handle('state:get', () => store.data);
+  ipcMain.handle('state:get', () => publicState());
+
+  ipcMain.handle('boards:list', () =>
+    store.data.boards.map(({ id, name, updatedAt }) => ({ id, name, updatedAt })).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+  );
+  ipcMain.handle('boards:get', (_e, boardId) => store.data.boards.find((b) => b.id === boardId) || null);
+  ipcMain.handle('boards:save', (_e, board) => store.upsert('boards', { ...board, updatedAt: new Date().toISOString() }));
+  ipcMain.handle('boards:delete', (_e, boardId) => store.remove('boards', boardId));
+  ipcMain.handle('boards:copyImage', (_e, dataUrl) => {
+    const png = Buffer.from(dataUrl.split(',')[1], 'base64');
+    return clipboard.write([new ClipboardItem({ 'image/png': new Blob([png], { type: 'image/png' }) })]);
+  });
+  ipcMain.handle('boards:saveImage', async (_e, dataUrl, name) => {
+    const safe = String(name || 'brainstorming').replace(/[\\/:*?"<>|]+/g, '-').trim() || 'brainstorming';
+    const res = await dialog.showSaveDialog(mainWin, {
+      title: 'Enregistrer la capture',
+      defaultPath: path.join(app.getPath('pictures'), `${safe}-${new Date().toISOString().slice(0, 10)}.png`),
+      filters: [{ name: 'Image PNG', extensions: ['png'] }],
+    });
+    if (res.canceled || !res.filePath) return null;
+    fs.writeFileSync(res.filePath, Buffer.from(dataUrl.split(',')[1], 'base64'));
+    return res.filePath;
+  });
 
   ipcMain.handle('data:upsert', (_e, collection, item) => {
     store.upsert(collection, item);

@@ -851,6 +851,151 @@ input[type='color'].swatch-custom {
   border-radius: 6px;
 }
 
+/* ---------- Brainstorming ---------- */
+
+.board {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+.board-canvas {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+}
+.board-tools {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.board-tools .sep,
+.board-props .sep {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 2px;
+}
+.board-props .sep {
+  width: 1px;
+  height: 22px;
+  margin: 0 4px;
+}
+.tool-btn {
+  width: 36px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.tool-btn svg {
+  width: 20px;
+  height: 20px;
+}
+.tool-btn:hover {
+  background: var(--surface-2);
+}
+.tool-btn.active {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+.board-props {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  max-width: calc(100% - 140px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.board-props[hidden] {
+  display: none;
+}
+.prop-colors {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  padding: 0;
+}
+.color-dot.on {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.prop-size {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prop-size input {
+  width: 110px;
+}
+.size-preview {
+  border-radius: 50%;
+  background: var(--text);
+  display: inline-block;
+  flex: none;
+}
+.board-props .input.small {
+  padding: 3px 6px;
+  font-size: 12.5px;
+}
+.board-zoom {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+}
+.board-hint {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  pointer-events: none;
+}
+.board-editor {
+  position: absolute;
+  border: 1px dashed var(--accent);
+  background: transparent;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  font-family: var(--font);
+  white-space: pre-wrap;
+}
+
 /* ---------- Pomodoro ---------- */
 
 .pomo {

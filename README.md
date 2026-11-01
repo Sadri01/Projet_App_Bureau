@@ -30,6 +30,34 @@ Application de bureau pour Windows 11 : emploi du temps, to-do list, rappels au 
 - Temps prévu et temps réalisé, avec la progression par activité.
 - Camembert des tâches terminées par catégorie.
 
+**Brainstorming (tableau blanc façon Miro)**
+- Feuille infinie : molette pour zoomer, <kbd>Espace</kbd> + glisser (ou clic droit) pour se déplacer, bouton « Tout voir ».
+- Crayon et surligneur avec couleur et taille réglables. Un cercle montre la taille du pinceau.
+- Gomme de taille réglable, qui efface seulement la partie du trait touchée.
+- Formes : rectangle, cercle, triangle, losange, avec ou sans remplissage. Traits et flèches.
+- Texte libre et post-it de couleur. Double-clic pour modifier un texte.
+- Sélection d'un ou plusieurs éléments (encadrer, ou <kbd>Maj</kbd>+clic). On peut les déplacer, les redimensionner, les dupliquer, les mettre au premier plan ou les supprimer.
+- Annuler et rétablir (<kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd>).
+- Plusieurs feuilles, qu'on peut renommer et supprimer.
+- **Capture** : enregistre toute la feuille en image PNG. **Copier l'image** la met dans le presse-papiers, prête à coller ailleurs.
+
+| Touche | Outil |
+|---|---|
+| <kbd>V</kbd> | Sélection |
+| <kbd>H</kbd> | Main (se déplacer) |
+| <kbd>P</kbd> | Crayon |
+| <kbd>M</kbd> | Surligneur |
+| <kbd>E</kbd> | Gomme |
+| <kbd>R</kbd> | Rectangle |
+| <kbd>O</kbd> | Cercle |
+| <kbd>G</kbd> | Triangle |
+| <kbd>D</kbd> | Losange |
+| <kbd>L</kbd> | Trait |
+| <kbd>A</kbd> | Flèche |
+| <kbd>T</kbd> | Texte |
+| <kbd>N</kbd> | Post-it |
+| <kbd>[</kbd> / <kbd>]</kbd> | Réduire / agrandir la taille |
+
 **Widgets de bureau**
 - To-do list et/ou emploi du temps du jour, ou aucun des deux.
 - Ils restent sur le bureau, derrière tes fenêtres.
@@ -125,6 +153,6 @@ src/
     widget.html    widgets de bureau
     quickadd.html  ajout rapide de tâche
     css/           thèmes et styles
-    js/            une vue par fichier (agenda, todo, stats, pomodoro, réglages)
+    js/            une vue par fichier (agenda, todo, stats, brainstorm, pomodoro, réglages)
 test/            tests automatiques
 ```

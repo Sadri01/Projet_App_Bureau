@@ -31,6 +31,8 @@
   --widget-bg: rgba(255, 255, 255, 0.9);
   --grid-line: #eef0f6;
   --brand-gradient: linear-gradient(135deg, #6c4ff6, #ff5c8a);
+  --board-bg: #ffffff;
+  --board-dot: #d9dce8;
 }
 
 [data-theme='sombre'] {
@@ -62,6 +64,8 @@
   --widget-bg: rgba(24, 27, 33, 0.9);
   --grid-line: #20242c;
   --brand-gradient: linear-gradient(135deg, #8f7dff, #4fd1c5);
+  --board-bg: #15171c;
+  --board-dot: #2e333d;
 }
 
 /* Post-apocalyptique : nature qui reprend ses droits, rouille, papier usé */
@@ -97,6 +101,8 @@
   --widget-bg: rgba(31, 35, 26, 0.92);
   --grid-line: #2b3024;
   --brand-gradient: linear-gradient(135deg, #c8642c, #8aa857);
+  --board-bg: #1f2219;
+  --board-dot: #3a3f30;
 }
 
 [data-theme='survie'] .card,

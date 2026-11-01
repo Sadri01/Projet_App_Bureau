@@ -43,6 +43,7 @@ const DEFAULT_DATA = {
   ],
   log: {},
   importedEvents: [],
+  boards: [],
   settings: DEFAULT_SETTINGS,
 };
 

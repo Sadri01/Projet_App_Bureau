@@ -2,7 +2,7 @@
 const App = {
   state: null,
   view: 'agenda',
-  views: { agenda: Agenda, todo: Todo, stats: Stats, pomodoro: PomodoroView, reglages: Settings },
+  views: { agenda: Agenda, todo: Todo, stats: Stats, brainstorm: Brainstorm, pomodoro: PomodoroView, reglages: Settings },
 
   async init() {
     this.state = await api.getState();
@@ -39,6 +39,7 @@ const App = {
 
   show(view) {
     if (!this.views[view]) return;
+    if (this.view === 'brainstorm' && view !== 'brainstorm') Brainstorm.flush();
     this.view = view;
     try {
       localStorage.setItem('vue', view);
@@ -66,5 +67,7 @@ const App = {
     U.$('#mini-pomo-time').textContent = PomodoroView.format(p.remaining);
   },
 };
+
+window.addEventListener('beforeunload', () => Brainstorm.flush());
 
 App.init();

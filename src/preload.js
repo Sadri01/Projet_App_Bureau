@@ -44,4 +44,11 @@ contextBridge.exposeInMainWorld('api', {
   readSound: () => ipcRenderer.invoke('sound:read'),
 
   appInfo: () => ipcRenderer.invoke('app:info'),
+
+  listBoards: () => ipcRenderer.invoke('boards:list'),
+  getBoard: (id) => ipcRenderer.invoke('boards:get', id),
+  saveBoard: (board) => ipcRenderer.invoke('boards:save', board),
+  deleteBoard: (id) => ipcRenderer.invoke('boards:delete', id),
+  copyBoardImage: (dataUrl) => ipcRenderer.invoke('boards:copyImage', dataUrl),
+  saveBoardImage: (dataUrl, name) => ipcRenderer.invoke('boards:saveImage', dataUrl, name),
 });
