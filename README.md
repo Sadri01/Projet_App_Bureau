@@ -105,14 +105,13 @@ L'agenda est actualisé toutes les 30 minutes. Il est en lecture seule dans Mon 
 
 ## Installer et tester
 
-### Option 1 : télécharger l'installeur (le plus simple)
+### Option 1 : installer l'appli (recommandé)
 
-1. Sur GitHub, ouvre l'onglet **Actions** du dépôt.
-2. Clique sur la dernière exécution réussie de **Installeur Windows**.
-3. En bas de la page, télécharge **Mon-Planning-Installeur**. C'est un fichier zip qui contient le `.exe`.
-4. Lance `Mon-Planning-Setup-x.y.z.exe`.
+1. Ouvre la page [Releases](https://github.com/Sadri01/Projet_App_Bureau/releases/latest) du dépôt.
+2. Télécharge `Mon-Planning-Setup-x.y.z.exe` et lance-le.
+3. Windows SmartScreen peut afficher « Windows a protégé votre ordinateur », car l'application n'est pas signée. Clique sur **Informations complémentaires**, puis **Exécuter quand même**.
 
-Windows SmartScreen peut afficher « Windows a protégé votre ordinateur », car l'application n'est pas signée. Clique sur **Informations complémentaires**, puis **Exécuter quand même**.
+**Mises à jour automatiques.** L'appli vérifie s'il existe une nouvelle version au démarrage, puis toutes les 4 heures. Si oui, elle la télécharge en arrière-plan. Un pop-up propose alors de redémarrer tout de suite. Sinon, la mise à jour s'installe quand tu quittes l'appli. Tu peux aussi lancer une recherche à la main dans **Réglages → Mises à jour**.
 
 ### Option 2 : lancer depuis le code
 
@@ -125,6 +124,14 @@ npm start
 
 - `npm test` lance les tests automatiques.
 - `npm run dist` construit l'installeur Windows dans `dist/`.
+
+### Publier une nouvelle version
+
+1. Augmente le numéro `version` dans `package.json` (par exemple 0.2.0 → 0.2.1).
+2. Envoie le code sur GitHub.
+3. Le workflow **Installeur Windows** construit l'installeur. Comme ce numéro n'a jamais été publié, il crée une Release, et les applis installées se mettent à jour toutes seules.
+
+Sans changement de numéro, l'installeur est seulement construit (onglet Actions), sans être distribué.
 
 Le lancement au démarrage de Windows ne fonctionne qu'avec la version installée.
 
@@ -143,6 +150,7 @@ src/
     scheduler.js   moteur de rappels
     store.js       enregistrement des données et sauvegardes
     pomodoro.js    minuteur
+    updater.js     mises à jour automatiques
     ics.js         import d'agendas
   preload.js     pont sécurisé entre l'interface et le processus principal
   shared/

@@ -39,6 +39,16 @@
         ],
       };
     }
+    if (p.kind === 'update') {
+      return {
+        kicker: '⬆ Mise à jour',
+        when: "Elle s'installera toute seule quand tu quitteras l'appli, ou tout de suite si tu redémarres.",
+        actions: [
+          ['install', 'Redémarrer maintenant', 'primary'],
+          ['dismiss', 'Plus tard', ''],
+        ],
+      };
+    }
     if (p.phase === 'test') {
       return { kicker: '🔔 Essai', when: 'Les rappels ressembleront à ça.', actions: [['dismiss', 'Parfait', 'primary']] };
     }
@@ -70,7 +80,7 @@
       </div>
     </div>`;
     U.$$('[data-a]', root).forEach((b) => (b.onclick = () => api.popupAction(b.dataset.a)));
-    Sounds.play(state.settings, api.readSound);
+    if (p.kind !== 'update') Sounds.play(state.settings, api.readSound);
   });
 
   document.addEventListener('keydown', (e) => {

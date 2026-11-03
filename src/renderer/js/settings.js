@@ -15,8 +15,32 @@ const Settings = (() => {
     ['showMain', 'Ouvrir la fenêtre principale'],
   ];
 
+  let update = null;
+
   function init() {
     root = U.$('#view-reglages');
+    api.onUpdateStatus((st) => {
+      update = st;
+      renderUpdate();
+    });
+  }
+
+  function renderUpdate() {
+    const el = U.$('[data-update-status]', root);
+    if (!el || !update) return;
+    const texts = {
+      dev: 'Mode développement (npm start) : les mises à jour ne concernent que la version installée.',
+      idle: '',
+      checking: 'Recherche en cours…',
+      uptodate: `Tu as la dernière version${update.checkedAt ? ` (vérifié à ${U.fmtTime(update.checkedAt)})` : ''}.`,
+      downloading: `Téléchargement de la version ${update.newVersion || ''}… ${update.percent || 0} %`,
+      ready: `La version ${update.newVersion} est prête.`,
+      error: `Impossible de vérifier : ${update.message || 'erreur inconnue'}`,
+    };
+    el.textContent = texts[update.state] ?? '';
+    el.style.color = update.state === 'error' ? 'var(--danger)' : update.state === 'ready' ? 'var(--success)' : '';
+    U.$('[data-install-update]', root).hidden = update.state !== 'ready';
+    U.$('[data-check-update]', root).disabled = ['checking', 'downloading', 'dev'].includes(update.state);
   }
 
   const checked = (v) => (v ? 'checked' : '');
@@ -146,7 +170,17 @@ const Settings = (() => {
               <button class="btn" data-import>⬆ Restaurer une sauvegarde</button>
               <button class="btn ghost" data-open-backups>Ouvrir le dossier des sauvegardes</button>
             </div>
-            <p class="small muted" style="margin:0">Version ${U.esc(info.version)}</p>
+          </section>
+
+          <section class="card">
+            <h2>Mises à jour</h2>
+            <p class="small muted">Version installée : <b>${U.esc(info.version)}</b>. L'appli vérifie toute seule au démarrage puis toutes les 4 heures,
+              télécharge les nouvelles versions en arrière-plan et les installe quand tu la quittes.</p>
+            <div class="row wrap">
+              <button class="btn" data-check-update>↻ Rechercher une mise à jour</button>
+              <button class="btn primary" data-install-update hidden>Redémarrer et mettre à jour</button>
+            </div>
+            <p class="small" data-update-status></p>
           </section>
         </div>
       </div>`;
@@ -266,6 +300,16 @@ const Settings = (() => {
       }
     };
     U.$('[data-open-backups]', root).onclick = () => api.openBackups();
+
+    U.$('[data-check-update]', root).onclick = async () => {
+      update = await api.checkUpdate();
+      renderUpdate();
+    };
+    U.$('[data-install-update]', root).onclick = () => api.installUpdate();
+    api.updateStatus().then((st) => {
+      update = st;
+      renderUpdate();
+    });
   }
 
   // Retire le préfixe technique ajouté par Electron aux erreurs IPC

@@ -1,7 +1,7 @@
 {
   "name": "mon-planning",
   "productName": "Mon Planning",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Emploi du temps, to-do list, rappels et widgets de bureau",
   "main": "src/main/main.js",
   "author": "sadri01",
@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "chart.js": "4.5.1",
+    "electron-updater": "6.8.10",
     "node-ical": "0.27.2"
   },
   "devDependencies": {
@@ -51,6 +52,14 @@
         "dir"
       ],
       "icon": "src/assets/icon.png"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Sadri01",
+        "repo": "Projet_App_Bureau",
+        "releaseType": "release"
+      }
+    ]
   }
 }

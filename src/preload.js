@@ -45,6 +45,11 @@ contextBridge.exposeInMainWorld('api', {
 
   appInfo: () => ipcRenderer.invoke('app:info'),
 
+  updateStatus: () => ipcRenderer.invoke('update:status'),
+  checkUpdate: () => ipcRenderer.invoke('update:check'),
+  installUpdate: () => ipcRenderer.invoke('update:install'),
+  onUpdateStatus: (cb) => subscribe('update-status', cb),
+
   listBoards: () => ipcRenderer.invoke('boards:list'),
   getBoard: (id) => ipcRenderer.invoke('boards:get', id),
   saveBoard: (board) => ipcRenderer.invoke('boards:save', board),

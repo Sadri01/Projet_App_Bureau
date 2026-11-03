@@ -20,6 +20,7 @@ const { Store } = require('./store');
 const { Scheduler } = require('./scheduler');
 const { Pomodoro } = require('./pomodoro');
 const ics = require('./ics');
+const { Updater } = require('./updater');
 
 const RENDERER = path.join(__dirname, '..', 'renderer');
 const PRELOAD = path.join(__dirname, '..', 'preload.js');
@@ -43,6 +44,7 @@ process.on('unhandledRejection', (err) => console.error('Erreur non gérée :', 
 let store;
 let scheduler;
 let pomodoro;
+let updater;
 let tray = null;
 let mainWin = null;
 let popupWin = null;
@@ -278,6 +280,10 @@ function handlePopupAction(action) {
     }
   }
   if (action === 'open') showMain(p.kind === 'task' ? 'todo' : 'agenda');
+  if (p.kind === 'update' && action === 'install') {
+    quitting = true;
+    updater.install();
+  }
   popupCurrent = null;
   if (popupQueue.length) showNextPopup();
   else if (popupWin && !popupWin.isDestroyed()) popupWin.hide();
@@ -590,6 +596,13 @@ function registerIpc() {
     return `data:${mime};base64,${fs.readFileSync(file).toString('base64')}`;
   });
 
+  ipcMain.handle('update:status', () => updater.status);
+  ipcMain.handle('update:check', () => updater.check());
+  ipcMain.handle('update:install', () => {
+    quitting = true;
+    updater.install();
+  });
+
   ipcMain.handle('app:info', () => ({
     version: app.getVersion(),
     packaged: app.isPackaged,
@@ -621,6 +634,21 @@ app.whenReady().then(() => {
 
   scheduler = new Scheduler(store, notify);
   scheduler.start();
+
+  updater = new Updater(
+    (status) => mainWin && !mainWin.isDestroyed() && mainWin.webContents.send('update-status', status),
+    (version) => {
+      if (store.data.settings.dndUntil > Date.now()) return;
+      notify({
+        kind: 'update',
+        phase: 'ready',
+        title: `Version ${version} prête`,
+        color: '#1baf7a',
+        start: Date.now(),
+      });
+    },
+  );
+  updater.start();
 
   const launchedAtLogin = process.argv.includes('--au-demarrage');
   createMainWindow(!(launchedAtLogin && store.data.settings.startHidden));

@@ -1,10 +1,14 @@
-# Construit l'installeur Windows (.exe) à chaque envoi de code.
-# Le fichier est téléchargeable dans l'onglet « Actions » du dépôt GitHub.
+# Construit l'installeur Windows à chaque envoi de code.
+# Si la version de package.json n'a encore jamais été publiée, crée une « Release » GitHub :
+# l'appli installée la détecte et se met à jour toute seule.
 name: Installeur Windows
 
 on:
   push:
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -24,8 +28,32 @@ jobs:
       - name: Construire l'installeur
         run: npx electron-builder --win nsis --publish never
 
+      - name: Vérifier les fichiers de mise à jour
+        shell: bash
+        run: |
+          ls -la dist
+          test -f dist/latest.yml
+          cat dist/latest.yml
+
       - uses: actions/upload-artifact@v4
         with:
           name: Mon-Planning-Installeur
           path: dist/*.exe
           retention-days: 30
+
+      - name: Publier la nouvelle version
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if gh release view "v$version" >/dev/null 2>&1; then
+            echo "La version $version est déjà publiée : rien à faire."
+            exit 0
+          fi
+          git log -1 --pretty=%B | sed '/^Co-Authored-By:/d;/^Claude-Session:/d' > notes.md
+          gh release create "v$version" \
+            dist/*.exe dist/*.exe.blockmap dist/latest.yml \
+            --target "$GITHUB_SHA" \
+            --title "Mon Planning $version" \
+            --notes-file notes.md
