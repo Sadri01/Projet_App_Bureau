@@ -1,0 +1,121 @@
+/* Thèmes : chaque thème redéfinit les mêmes variables. */
+
+:root,
+[data-theme='colore'] {
+  color-scheme: light;
+  --bg: #f4f5fb;
+  --bg-image: radial-gradient(1200px 600px at 100% -10%, #ffe3ec 0%, transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, #e2ddff 0%, transparent 60%);
+  --surface: #ffffff;
+  --surface-2: #f6f7fc;
+  --surface-3: #eceef7;
+  --text: #1d1f2b;
+  --text-2: #4a4f63;
+  --muted: #7a8094;
+  --border: #e3e6f0;
+  --accent: #6c4ff6;
+  --accent-2: #ff5c8a;
+  --accent-text: #ffffff;
+  --accent-soft: #ece8ff;
+  --danger: #d93a3a;
+  --success: #138a5a;
+  --warning: #b86e00;
+  --now: #ff3d6e;
+  --shadow: 0 6px 24px rgba(40, 40, 90, 0.08);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --font: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --font-title: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  --title-transform: none;
+  --title-spacing: -0.01em;
+  --widget-bg: rgba(255, 255, 255, 0.9);
+  --grid-line: #eef0f6;
+  --brand-gradient: linear-gradient(135deg, #6c4ff6, #ff5c8a);
+  --board-bg: #ffffff;
+  --board-dot: #d9dce8;
+}
+
+[data-theme='sombre'] {
+  color-scheme: dark;
+  --bg: #101216;
+  --bg-image: none;
+  --surface: #181b21;
+  --surface-2: #1e2229;
+  --surface-3: #272c35;
+  --text: #eceef3;
+  --text-2: #c2c6d0;
+  --muted: #8b92a1;
+  --border: #2b303a;
+  --accent: #8f7dff;
+  --accent-2: #4fd1c5;
+  --accent-text: #0f1015;
+  --accent-soft: #2a2546;
+  --danger: #ff6b6b;
+  --success: #3ccf91;
+  --warning: #f2b14a;
+  --now: #ff5c7a;
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --font-title: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  --title-transform: none;
+  --title-spacing: -0.01em;
+  --widget-bg: rgba(24, 27, 33, 0.9);
+  --grid-line: #20242c;
+  --brand-gradient: linear-gradient(135deg, #8f7dff, #4fd1c5);
+  --board-bg: #15171c;
+  --board-dot: #2e333d;
+}
+
+/* Post-apocalyptique : nature qui reprend ses droits, rouille, papier usé */
+[data-theme='survie'] {
+  color-scheme: dark;
+  --bg: #171a14;
+  --bg-image: radial-gradient(900px 500px at 0% 0%, rgba(92, 122, 58, 0.28) 0%, transparent 65%),
+    radial-gradient(700px 500px at 100% 100%, rgba(150, 70, 30, 0.22) 0%, transparent 60%),
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.012) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(25deg, rgba(0, 0, 0, 0.09) 0 1px, transparent 1px 5px);
+  --surface: #22261d;
+  --surface-2: #2a2f24;
+  --surface-3: #343a2c;
+  --text: #e9dfc6;
+  --text-2: #cfc4a8;
+  --muted: #9a9278;
+  --border: #45493a;
+  --accent: #c8642c;
+  --accent-2: #8aa857;
+  --accent-text: #1a1610;
+  --accent-soft: #3b3022;
+  --danger: #e0583a;
+  --success: #93b860;
+  --warning: #e0a23a;
+  --now: #e0583a;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(233, 223, 198, 0.03);
+  --radius: 4px;
+  --radius-sm: 3px;
+  --font: 'Segoe UI', system-ui, sans-serif;
+  --font-title: 'Bahnschrift Condensed', 'Bahnschrift', 'Arial Narrow', sans-serif;
+  --title-transform: uppercase;
+  --title-spacing: 0.08em;
+  --widget-bg: rgba(31, 35, 26, 0.92);
+  --grid-line: #2b3024;
+  --brand-gradient: linear-gradient(135deg, #c8642c, #8aa857);
+  --board-bg: #1f2219;
+  --board-dot: #3a3f30;
+}
+
+[data-theme='survie'] .card,
+[data-theme='survie'] .panel {
+  background-image: linear-gradient(180deg, rgba(233, 223, 198, 0.03), transparent 40%);
+  border-style: solid;
+}
+
+[data-theme='survie'] .brand-mark {
+  /* Petite feuille de lierre à la place du logo */
+  border-radius: 0 60% 0 60%;
+}
+
+[data-theme='survie'] .btn.primary {
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+}
