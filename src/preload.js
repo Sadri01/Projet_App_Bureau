@@ -45,6 +45,9 @@ contextBridge.exposeInMainWorld('api', {
 
   appInfo: () => ipcRenderer.invoke('app:info'),
 
+  syncPayload: (options) => ipcRenderer.invoke('sync:payload', options),
+  syncMerge: (incoming) => ipcRenderer.invoke('sync:merge', incoming),
+
   updateStatus: () => ipcRenderer.invoke('update:status'),
   checkUpdate: () => ipcRenderer.invoke('update:check'),
   installUpdate: () => ipcRenderer.invoke('update:install'),

@@ -21,6 +21,7 @@ const { Scheduler } = require('./scheduler');
 const { Pomodoro } = require('./pomodoro');
 const ics = require('./ics');
 const { Updater } = require('./updater');
+const Sync = require('../shared/sync');
 
 const RENDERER = path.join(__dirname, '..', 'renderer');
 const PRELOAD = path.join(__dirname, '..', 'preload.js');
@@ -594,6 +595,18 @@ function registerIpc() {
     if (!file || !fs.existsSync(file)) return null;
     const mime = SOUND_MIME[path.extname(file).toLowerCase()] || 'audio/mpeg';
     return `data:${mime};base64,${fs.readFileSync(file).toString('base64')}`;
+  });
+
+  ipcMain.handle('sync:payload', (_e, options) => Sync.payload(store.data, options));
+  ipcMain.handle('sync:merge', (_e, incoming) => {
+    const { data, summary } = Sync.merge(store.data, incoming);
+    store.saveNow();
+    fs.mkdirSync(store.backupDir, { recursive: true });
+    fs.copyFileSync(store.file, path.join(store.backupDir, `avant-synchro-${Date.now()}.json`));
+    store.data = data;
+    store.saveNow();
+    broadcastState();
+    return Sync.describe(summary);
   });
 
   ipcMain.handle('update:status', () => updater.status);

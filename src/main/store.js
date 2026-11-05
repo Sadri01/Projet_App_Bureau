@@ -1,69 +1,13 @@
 // Stockage des données dans un fichier JSON local (dossier utilisateur de l'appli).
 const fs = require('fs');
 const path = require('path');
+const { Model, DEFAULT_SETTINGS, DEFAULT_DATA, withDefaults } = require('../shared/data');
 
 const BACKUPS_KEPT = 10;
 
-const DEFAULT_SETTINGS = {
-  theme: 'colore',
-  autoLaunch: false,
-  startHidden: true,
-  sound: 'carillon',
-  customSoundPath: '',
-  volume: 0.7,
-  reminderDefault: 10,
-  dndUntil: 0,
-  dayStart: 6,
-  dayEnd: 24,
-  notifyTasks: true,
-  notifyImported: true,
-  pomodoroOnGo: false,
-  pomodoro: { work: 25, shortBreak: 5, longBreak: 15, cyclesBeforeLong: 4 },
-  shortcuts: {
-    quickAdd: 'Control+Alt+T',
-    widgetsFront: 'Control+Alt+W',
-    showMain: 'Control+Alt+P',
-  },
-  widgets: {
-    todo: { visible: false, bounds: null },
-    edt: { visible: false, bounds: null },
-    opacity: 0.92,
-  },
-  icsFeeds: [],
-};
-
-const DEFAULT_DATA = {
-  version: 1,
-  activities: [],
-  tasks: [],
-  categories: [
-    { id: 'cat-travail', name: 'Travail', color: '#2a78d6' },
-    { id: 'cat-sport', name: 'Sport', color: '#1baf7a' },
-    { id: 'cat-perso', name: 'Perso', color: '#eb6834' },
-  ],
-  log: {},
-  importedEvents: [],
-  boards: [],
-  settings: DEFAULT_SETTINGS,
-};
-
-function isObject(v) {
-  return v && typeof v === 'object' && !Array.isArray(v);
-}
-
-// Fusion profonde : complète les données chargées avec les valeurs par défaut
-function withDefaults(defaults, value) {
-  if (!isObject(defaults)) return value === undefined ? defaults : value;
-  const out = { ...defaults };
-  if (!isObject(value)) return out;
-  for (const [k, v] of Object.entries(value)) {
-    out[k] = k in defaults ? withDefaults(defaults[k], v) : v;
-  }
-  return out;
-}
-
-class Store {
+class Store extends Model {
   constructor(dir) {
+    super({});
     this.dir = dir;
     this.file = path.join(dir, 'donnees.json');
     this.backupDir = path.join(dir, 'sauvegardes');
@@ -83,12 +27,12 @@ class Store {
           fs.copyFileSync(this.file, `${this.file}.corrompu-${Date.now()}`);
         } catch {}
       }
-      return structuredClone(DEFAULT_DATA);
+      return withDefaults(DEFAULT_DATA, {});
     }
   }
 
   replaceAll(raw) {
-    this.data = withDefaults(DEFAULT_DATA, raw);
+    super.replaceAll(raw);
     this.saveNow();
   }
 
@@ -119,34 +63,6 @@ class Store {
     for (const f of files.slice(0, Math.max(0, files.length - BACKUPS_KEPT))) {
       fs.unlinkSync(path.join(this.backupDir, f));
     }
-  }
-
-  upsert(collection, item) {
-    const list = this.data[collection];
-    if (!Array.isArray(list)) throw new Error(`Collection inconnue : ${collection}`);
-    const i = list.findIndex((x) => x.id === item.id);
-    if (i === -1) list.push(item);
-    else list[i] = item;
-    this.save();
-  }
-
-  remove(collection, id) {
-    const list = this.data[collection];
-    if (!Array.isArray(list)) throw new Error(`Collection inconnue : ${collection}`);
-    this.data[collection] = list.filter((x) => x.id !== id);
-    this.save();
-  }
-
-  setLog(key, value) {
-    if (value) this.data.log[key] = value;
-    else delete this.data.log[key];
-    this.save();
-  }
-
-  setSettings(partial) {
-    this.data.settings = withDefaults(this.data.settings, partial);
-    this.save();
-    return this.data.settings;
   }
 }
 

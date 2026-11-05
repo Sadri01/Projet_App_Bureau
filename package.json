@@ -1,7 +1,7 @@
 {
   "name": "mon-planning",
   "productName": "Mon Planning",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Emploi du temps, to-do list, rappels et widgets de bureau",
   "main": "src/main/main.js",
   "author": "sadri01",
@@ -11,7 +11,8 @@
     "start": "electron .",
     "test": "node --test test/*.test.js",
     "dist": "electron-builder --win nsis",
-    "icon": "node scripts/make-icon.js"
+    "icon": "node scripts/make-icon.js",
+    "build:web": "node scripts/build-web.js"
   },
   "dependencies": {
     "chart.js": "4.5.1",

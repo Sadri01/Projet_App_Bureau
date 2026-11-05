@@ -84,3 +84,19 @@ test('formatage des durées', () => {
   assert.equal(S.formatDuration(95), '1 h 35');
   assert.equal(S.formatTime(1500), '01:00');
 });
+
+test('récapitulatif : activités séparées portant le même nom regroupées', () => {
+  // Bug signalé : « Sport » le mardi et « Sport » le mercredi apparaissaient deux fois
+  const mardi = { id: 's1', title: 'Sport', color: '#1baf7a', start: '18:00', duration: 60, recurrence: { type: 'weekly', days: [2] } };
+  const mercredi = { id: 's2', title: ' sport ', color: '#e34948', start: '07:00', duration: 60, recurrence: { type: 'weekly', days: [3] } };
+  const from = new Date(2026, 9, 26);
+  const log = { 's2|2026-10-28': 'done' };
+  const rows = S.summarize([mardi, mercredi, japonais], log, from, S.addDays(from, 7));
+  const sport = rows.filter((r) => r.title.trim().toLowerCase() === 'sport');
+  assert.equal(sport.length, 1);
+  assert.equal(sport[0].planned, 120);
+  assert.equal(sport[0].done, 60);
+  assert.equal(sport[0].count, 2);
+  assert.equal(sport[0].title, 'Sport');
+  assert.equal(rows.length, 2);
+});

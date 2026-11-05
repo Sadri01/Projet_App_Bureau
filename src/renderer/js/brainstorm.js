@@ -45,6 +45,8 @@ const Brainstorm = (() => {
   let redoStack = [];
   let saveTimer = null;
   let frame = 0;
+  // Doigts posés sur l'écran (téléphone) : deux doigts = zoom et déplacement
+  const touches = new Map();
 
   const uid = () => U.uid();
   const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -730,6 +732,12 @@ const Brainstorm = (() => {
     const { sx, sy } = eventPos(e);
     const w = toWorld(sx, sy);
 
+    if (e.pointerType === 'touch') {
+      touches.set(e.pointerId, { sx, sy });
+      if (touches.size === 2) return startPinch();
+      if (touches.size > 2) return;
+    }
+
     if (e.button === 1 || e.button === 2 || tool === 'hand' || spaceDown) {
       action = { type: 'pan', sx, sy, vx: board.view.x, vy: board.view.y };
       updateCursor();
@@ -811,7 +819,9 @@ const Brainstorm = (() => {
     if (!board) return;
     const { sx, sy } = eventPos(e);
     const w = toWorld(sx, sy);
-    pointer = { sx, sy };
+    pointer = e.pointerType === 'touch' ? null : { sx, sy };
+    if (touches.has(e.pointerId)) touches.set(e.pointerId, { sx, sy });
+    if (action?.type === 'pinch') return updatePinch();
 
     if (!action) {
       if (tool === 'select') {
@@ -900,7 +910,49 @@ const Brainstorm = (() => {
     requestDraw();
   }
 
-  function onPointerUp() {
+  // Le 2e doigt annule ce que le 1er venait de commencer (trait, forme...)
+  function startPinch() {
+    const a = action;
+    if (a?.type === 'draw' || a?.type === 'create') {
+      board.items = board.items.filter((i) => i !== a.item);
+      undoStack.pop();
+    } else if (a?.type === 'erase' && a.snapshotKept) {
+      board.items = JSON.parse(a.before);
+      undoStack.pop();
+    } else if ((a?.type === 'move' && a.moved) || a?.type === 'resize') {
+      board.items = JSON.parse(undoStack.pop());
+    }
+    const [p1, p2] = [...touches.values()];
+    const cx = (p1.sx + p2.sx) / 2;
+    const cy = (p1.sy + p2.sy) / 2;
+    action = { type: 'pinch', dist: Math.hypot(p1.sx - p2.sx, p1.sy - p2.sy) || 1, zoom: board.view.zoom, anchor: toWorld(cx, cy) };
+    requestDraw();
+  }
+
+  function updatePinch() {
+    if (touches.size < 2) return;
+    const [p1, p2] = [...touches.values()];
+    const cx = (p1.sx + p2.sx) / 2;
+    const cy = (p1.sy + p2.sy) / 2;
+    const zoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, (action.zoom * Math.hypot(p1.sx - p2.sx, p1.sy - p2.sy)) / action.dist));
+    // Le point de la feuille sous les doigts reste sous les doigts
+    board.view.zoom = zoom;
+    board.view.x = action.anchor.x - cx / zoom;
+    board.view.y = action.anchor.y - cy / zoom;
+    if (editing) positionEditor();
+    requestDraw();
+  }
+
+  function onPointerUp(e) {
+    touches.delete(e.pointerId);
+    if (action?.type === 'pinch') {
+      if (touches.size < 2) {
+        action = null;
+        scheduleSave();
+        requestDraw();
+      }
+      return;
+    }
     if (!action) return;
     const a = action;
     action = null;

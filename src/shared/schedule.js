@@ -141,15 +141,26 @@
     return { from, to: addDays(from, 7) };
   }
 
+  // Clé de regroupement : « Sport », « sport » et « Sport  » sont la même activité
+  function titleKey(title) {
+    return String(title || '')
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ');
+  }
+
   // Totaux prévus / réalisés par activité sur une période
   function summarize(activities, log, from, to) {
-    const byId = new Map();
+    const byTitle = new Map();
     for (const occ of occurrencesBetween(activities, from, to)) {
       const a = occ.activity;
-      if (!byId.has(a.id)) {
-        byId.set(a.id, { id: a.id, title: a.title, color: a.color, planned: 0, done: 0, skipped: 0, count: 0 });
+      const key = titleKey(a.title);
+      if (!byTitle.has(key)) {
+        byTitle.set(key, { id: key, title: String(a.title || '').trim(), color: a.color, planned: 0, done: 0, skipped: 0, count: 0 });
       }
-      const row = byId.get(a.id);
+      const row = byTitle.get(key);
       const minutes = Number(a.duration) || 0;
       row.planned += minutes;
       row.count += 1;
@@ -157,7 +168,7 @@
       if (status === 'done') row.done += minutes;
       else if (status === 'skipped') row.skipped += minutes;
     }
-    return [...byId.values()].sort((a, b) => b.planned - a.planned);
+    return [...byTitle.values()].sort((a, b) => b.planned - a.planned);
   }
 
   function formatDuration(minutes) {
@@ -184,6 +195,7 @@
     layoutDay,
     periodRange,
     summarize,
+    titleKey,
     formatDuration,
   };
 });

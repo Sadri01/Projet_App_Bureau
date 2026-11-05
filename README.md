@@ -1,6 +1,6 @@
 # Mon Planning
 
-Application de bureau pour Windows 11 : emploi du temps, to-do list, rappels au premier plan et widgets sur le bureau.
+Application de bureau pour Windows 11 (emploi du temps, to-do list, rappels au premier plan, widgets sur le bureau), avec sa version téléphone pour Android.
 
 ## Fonctionnalités
 
@@ -72,6 +72,40 @@ Application de bureau pour Windows 11 : emploi du temps, to-do list, rappels au 
 - Import d'agendas externes : Google Agenda ou Outlook par lien `.ics`, ou un fichier `.ics`.
 - Sauvegarde automatique chaque jour, plus un export et une restauration manuels.
 
+## Appli téléphone (Android)
+
+L'appli téléphone a les mêmes sections que sur PC : emploi du temps (3 jours visibles), to-do list, récapitulatif, brainstorming (dessin au doigt, pincer pour zoomer), Pomodoro et réglages.
+
+**L'installer :**
+1. Ouvre https://sadri01.github.io/Projet_App_Bureau/ dans Chrome sur ton téléphone.
+2. Menu ⋮ → **Installer l'application** (ou **Ajouter à l'écran d'accueil**).
+3. Elle s'ouvre ensuite comme une vraie appli, même sans Internet.
+
+**Ce qui est différent du PC :**
+- Les rappels ne fonctionnent que si l'appli est ouverte, ou en arrière-plan depuis peu. Android met les applis web en veille.
+- Pas de widgets, de raccourcis clavier ni de lancement au démarrage.
+- Les agendas Google ou Outlook se gèrent sur le PC ; leurs événements arrivent sur le téléphone avec la synchronisation.
+
+Quand une nouvelle version est publiée, l'appli propose de **Recharger** pour l'installer.
+
+## Synchronisation PC ↔ téléphone
+
+Il n'y a ni compte ni serveur : les données passent par un **code** que tu copies d'un appareil à l'autre.
+
+1. Sur un appareil, va dans **Réglages → Synchronisation** et clique sur **Copier mon code**. Sur téléphone, tu peux aussi utiliser **Partager**.
+2. Envoie-toi le code, par exemple par WhatsApp ou par mail.
+3. Sur l'autre appareil, colle-le dans la même section puis clique sur **Fusionner**.
+
+Rien n'est écrasé. Pour chaque activité, tâche, catégorie ou feuille, c'est la modification la plus récente qui gagne. Une suppression faite sur un appareil est aussi appliquée sur l'autre. Les réglages (thème, sons, widgets…) restent propres à chaque appareil.
+
+Fais l'opération dans les deux sens pour que les deux appareils soient identiques.
+
+Si le code est trop long pour ta messagerie (beaucoup de dessins), deux solutions :
+- décoche « Inclure les feuilles de brainstorming » ;
+- ou utilise **En fichier** puis **Ouvrir un fichier**.
+
+Sur PC, une copie de sécurité est faite avant chaque fusion, dans le dossier des sauvegardes.
+
 ## Raccourcis clavier
 
 Tu peux les modifier dans **Réglages → Raccourcis clavier**.
@@ -129,9 +163,20 @@ npm start
 
 1. Augmente le numéro `version` dans `package.json` (par exemple 0.2.0 → 0.2.1).
 2. Envoie le code sur GitHub.
-3. Le workflow **Installeur Windows** construit l'installeur. Comme ce numéro n'a jamais été publié, il crée une Release, et les applis installées se mettent à jour toutes seules.
+3. Le workflow **Installeur Windows et appli téléphone** construit l'installeur. Comme ce numéro n'a jamais été publié, il crée une Release, et les applis installées se mettent à jour toutes seules.
 
 Sans changement de numéro, l'installeur est seulement construit (onglet Actions), sans être distribué.
+
+L'appli téléphone, elle, est republiée à chaque envoi de code, sur la branche `gh-pages`. Pour qu'elle soit en ligne, active GitHub Pages une seule fois : **Settings → Pages → Build and deployment → Source : Deploy from a branch → `gh-pages` / `(root)` → Save**.
+
+Pour essayer l'appli téléphone sur ton ordinateur :
+
+```bash
+npm run build:web
+cd dist-web && python3 -m http.server 8000
+```
+
+Puis ouvre http://localhost:8000.
 
 Le lancement au démarrage de Windows ne fonctionne qu'avec la version installée.
 
@@ -155,6 +200,11 @@ src/
   preload.js     pont sécurisé entre l'interface et le processus principal
   shared/
     schedule.js    calculs de dates et de récurrence (utilisés partout)
+    data.js        modèle de données (dates de modification, suppressions)
+    sync.js        code de synchronisation et fusion entre appareils
+  web/           appli téléphone
+    api-web.js     remplace le processus principal dans le navigateur
+    sw.js          fonctionnement hors ligne et mises à jour
   renderer/      interface
     index.html     fenêtre principale
     popup.html     pop-up de rappel

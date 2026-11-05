@@ -1,5 +1,6 @@
 // Surveille l'heure et déclenche les rappels (activités, tâches, agendas importés).
-const S = require('../shared/schedule');
+// Utilisé par le PC (Node) et par l'appli téléphone (navigateur)
+const S = typeof module === 'object' && module.exports ? require('../shared/schedule') : self.Schedule;
 
 const TICK_MS = 15 * 1000;
 // Un rappel manqué (PC en veille...) reste valable pendant ce délai
@@ -118,4 +119,5 @@ class Scheduler {
   }
 }
 
-module.exports = { Scheduler, GRACE_MS };
+if (typeof module === 'object' && module.exports) module.exports = { Scheduler, GRACE_MS };
+else self.Scheduler = Scheduler;

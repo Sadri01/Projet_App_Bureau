@@ -38,6 +38,7 @@ const Stats = (() => {
     const tasksDone = state.tasks.filter((t) => t.status === 'termine' && inRange(t.completedAt));
     const tasksOpen = state.tasks.filter((t) => t.status === 'urgent' || t.status === 'normal');
     const rate = planned ? Math.round((done / planned) * 100) : 0;
+    const sessions = rows.reduce((n, r) => n + r.count, 0);
 
     // Tâches terminées par catégorie
     const byCat = new Map();
@@ -67,7 +68,7 @@ const Stats = (() => {
       </header>
       <div class="view-body">
         <div class="stats-grid">
-          <div class="card tile"><div class="label">Temps prévu</div><div class="value">${Schedule.formatDuration(planned)}</div><div class="sub">${rows.reduce((s, r) => s + r.count, 0)} séances</div></div>
+          <div class="card tile"><div class="label">Temps prévu</div><div class="value">${Schedule.formatDuration(planned)}</div><div class="sub">${sessions} séance${sessions > 1 ? 's' : ''}</div></div>
           <div class="card tile"><div class="label">Temps réalisé</div><div class="value">${Schedule.formatDuration(done)}</div><div class="sub">${rate} % du prévu${skipped ? ` · ${Schedule.formatDuration(skipped)} passées` : ''}</div></div>
           <div class="card tile"><div class="label">Tâches terminées</div><div class="value">${tasksDone.length}</div><div class="sub">sur la période</div></div>
           <div class="card tile"><div class="label">Tâches en cours</div><div class="value">${tasksOpen.length}</div><div class="sub">${tasksOpen.filter((t) => t.status === 'urgent').length} urgente(s)</div></div>

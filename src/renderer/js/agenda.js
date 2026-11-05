@@ -2,7 +2,11 @@
 const Agenda = (() => {
   const HOUR = 48;
   const SNAP = 15;
-  let weekStart = Schedule.startOfWeek(new Date());
+  // Premier jour affiché : le lundi sur PC, aujourd'hui sur téléphone (3 jours visibles)
+  const numDays = () => (window.innerWidth <= 760 ? 3 : 7);
+  const firstDay = () => (numDays() === 7 ? Schedule.startOfWeek(new Date()) : Schedule.startOfDay(new Date()));
+  let weekStart = firstDay();
+  let shownDays = numDays();
   let showSide = true;
   let scrolledOnce = false;
   let drag = null;
@@ -15,20 +19,27 @@ const Agenda = (() => {
     } catch {}
     document.addEventListener('keydown', (e) => {
       if (App.view !== 'agenda' || Modal.isOpen() || e.target.closest('input, textarea, select')) return;
-      if (e.key === 'ArrowLeft') move(-7);
-      if (e.key === 'ArrowRight') move(7);
+      if (e.key === 'ArrowLeft') move(-numDays());
+      if (e.key === 'ArrowRight') move(numDays());
+    });
+    // Passage PC <-> téléphone (ou fenêtre redimensionnée) : on repart d'aujourd'hui
+    window.addEventListener('resize', () => {
+      if (numDays() === shownDays) return;
+      shownDays = numDays();
+      weekStart = firstDay();
+      if (App.view === 'agenda') render(App.state);
     });
   }
 
   function move(days) {
-    weekStart = days === 0 ? Schedule.startOfWeek(new Date()) : Schedule.addDays(weekStart, days);
+    weekStart = days === 0 ? firstDay() : Schedule.addDays(weekStart, days);
     render(App.state);
   }
 
   const range = (s) => ({ startMin: s.settings.dayStart * 60, endMin: Math.max(s.settings.dayEnd, s.settings.dayStart + 1) * 60 });
 
   function weekLabel() {
-    const end = Schedule.addDays(weekStart, 6);
+    const end = Schedule.addDays(weekStart, numDays() - 1);
     const sameMonth = end.getMonth() === weekStart.getMonth();
     const a = weekStart.toLocaleDateString('fr-FR', sameMonth ? { day: 'numeric' } : { day: 'numeric', month: 'short' });
     const b = end.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -37,8 +48,8 @@ const Agenda = (() => {
 
   // Événements de la semaine, rangés par jour (0 = lundi)
   function collect(state) {
-    const days = Array.from({ length: 7 }, () => ({ timed: [], allDay: [] }));
-    const weekEnd = Schedule.addDays(weekStart, 7);
+    const days = Array.from({ length: numDays() }, () => ({ timed: [], allDay: [] }));
+    const weekEnd = Schedule.addDays(weekStart, numDays());
     const index = (d) => Math.floor((Schedule.startOfDay(d) - weekStart) / Schedule.DAY_MS + 0.01);
 
     for (const occ of Schedule.occurrencesBetween(state.activities, weekStart, weekEnd)) {
@@ -81,9 +92,9 @@ const Agenda = (() => {
       <header class="view-header">
         <h1>Emploi du temps</h1>
         <div class="row">
-          <button class="btn icon" data-act="prev" title="Semaine précédente">‹</button>
+          <button class="btn icon" data-act="prev" title="Précédent">‹</button>
           <button class="btn" data-act="today">Aujourd'hui</button>
-          <button class="btn icon" data-act="next" title="Semaine suivante">›</button>
+          <button class="btn icon" data-act="next" title="Suivant">›</button>
           <span class="muted" style="margin-left:6px">${weekLabel()}</span>
         </div>
         <div class="grow"></div>
@@ -112,7 +123,7 @@ const Agenda = (() => {
           </aside>`
               : ''
           }
-          <div class="week card" style="--hour:${HOUR}px">
+          <div class="week card" style="--hour:${HOUR}px;--days:${days.length}">
             <div class="week-head">
               <div></div>
               ${days
@@ -219,8 +230,8 @@ const Agenda = (() => {
   }
 
   function bind(state) {
-    U.$('[data-act="prev"]', root).onclick = () => move(-7);
-    U.$('[data-act="next"]', root).onclick = () => move(7);
+    U.$('[data-act="prev"]', root).onclick = () => move(-numDays());
+    U.$('[data-act="next"]', root).onclick = () => move(numDays());
     U.$('[data-act="today"]', root).onclick = () => move(0);
     U.$('[data-act="add"]', root).onclick = () => ActivityForm.open();
     U.$('[data-act="side"]', root).onclick = () => {
@@ -285,6 +296,7 @@ const Agenda = (() => {
     const col = e.target.closest('.day-col');
     if (!col) return;
     if (block?.classList.contains('imported')) return;
+    if (e.pointerType === 'touch') return onTouchDown(e, block, col);
 
     if (block) {
       const activity = App.state.activities.find((a) => a.id === block.dataset.activity);
@@ -309,6 +321,30 @@ const Agenda = (() => {
     e.currentTarget.setPointerCapture(e.pointerId);
     e.currentTarget.addEventListener('pointermove', onPointerMove);
     e.currentTarget.addEventListener('pointerup', onPointerUp, { once: true });
+  }
+
+  // Au doigt : pas de glisser-déposer (le doigt sert à faire défiler), un simple appui suffit
+  function onTouchDown(e, block, col) {
+    const grid = e.currentTarget;
+    const start = { x: e.clientX, y: e.clientY };
+    const minutes = minutesAt(col, e.clientY, 30);
+    const cleanup = () => {
+      grid.removeEventListener('pointerup', up);
+      grid.removeEventListener('pointercancel', cleanup);
+    };
+    const up = (ev) => {
+      cleanup();
+      if (Math.hypot(ev.clientX - start.x, ev.clientY - start.y) > 10) return;
+      if (block) {
+        const activity = App.state.activities.find((a) => a.id === block.dataset.activity);
+        const dateKey = block.dataset.date;
+        if (activity) ActivityForm.open({ activity, occurrence: { dateKey, key: Schedule.occurrenceKey(activity.id, dateKey) } });
+      } else {
+        ActivityForm.open({ defaults: { start: Schedule.formatTime(minutes), duration: 60, recurrence: { type: 'once', date: col.dataset.date } } });
+      }
+    };
+    grid.addEventListener('pointerup', up);
+    grid.addEventListener('pointercancel', cleanup);
   }
 
   function onPointerMove(e) {

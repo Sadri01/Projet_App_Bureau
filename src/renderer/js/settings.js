@@ -30,6 +30,7 @@ const Settings = (() => {
     if (!el || !update) return;
     const texts = {
       dev: 'Mode développement (npm start) : les mises à jour ne concernent que la version installée.',
+      web: '',
       idle: '',
       checking: 'Recherche en cours…',
       uptodate: `Tu as la dernière version${update.checkedAt ? ` (vérifié à ${U.fmtTime(update.checkedAt)})` : ''}.`,
@@ -70,7 +71,37 @@ const Settings = (() => {
             </div>
           </section>
 
+          <section class="card" data-web-only>
+            <h2>Sur ce téléphone</h2>
+            <button class="btn primary" data-install-app hidden style="align-self:flex-start">📲 Installer l’appli sur l’écran d’accueil</button>
+            <p class="small muted" data-install-help>Pour l’installer : menu ⋮ de Chrome → « Ajouter à l’écran d’accueil » (ou « Installer l’application »).</p>
+            <div class="row wrap">
+              <button class="btn" data-allow-notif>🔔 Autoriser les notifications</button>
+              <span class="small muted" data-notif-status></span>
+            </div>
+            <p class="small muted">Les rappels arrivent tant que l’appli est ouverte ou en arrière-plan récent. Android peut la mettre en veille au bout d’un moment : pour les rappels importants, c’est le PC qui fait foi.</p>
+          </section>
+
           <section class="card">
+            <h2>Synchronisation PC ↔ téléphone</h2>
+            <p class="small muted">1. Sur un appareil, copie ton code. 2. Envoie-le-toi (WhatsApp, mail…). 3. Sur l’autre appareil, colle-le ici puis « Fusionner ».
+              Rien n’est écrasé : pour chaque élément, la modification la plus récente gagne. Fais-le dans les deux sens pour que les deux appareils soient identiques.</p>
+            <label class="switch"><input type="checkbox" data-sync-boards checked>Inclure les feuilles de brainstorming (code plus long)</label>
+            <div class="row wrap">
+              <button class="btn primary" data-sync-copy>📋 Copier mon code</button>
+              <button class="btn" data-sync-share data-web-only>↗ Partager</button>
+              <button class="btn" data-sync-file>💾 En fichier</button>
+            </div>
+            <p class="small muted" data-sync-info></p>
+            <textarea class="input" data-sync-input rows="3" placeholder="Colle ici le code de l’autre appareil (il commence par MP1.)"></textarea>
+            <div class="row wrap">
+              <button class="btn primary" data-sync-merge>⇄ Fusionner</button>
+              <button class="btn" data-sync-paste>Coller</button>
+              <button class="btn" data-sync-open>📂 Ouvrir un fichier</button>
+            </div>
+          </section>
+
+          <section class="card" data-desktop-only>
             <h2>Démarrage</h2>
             <label class="switch"><input type="checkbox" data-set="autoLaunch" ${checked(s.autoLaunch)}>Lancer Mon Planning au démarrage de Windows</label>
             <label class="switch"><input type="checkbox" data-set="startHidden" ${checked(s.startHidden)}>Au démarrage, rester discret dans la zone de notification</label>
@@ -85,7 +116,7 @@ const Settings = (() => {
                 <select class="input grow" data-set="sound">
                   ${Object.entries(Sounds.LIST).map(([k, l]) => `<option value="${k}" ${s.sound === k ? 'selected' : ''}>${l}</option>`).join('')}
                 </select>
-                <button class="btn" data-choose-sound title="Choisir un fichier MP3, WAV ou OGG">📁 Fichier…</button>
+                <button class="btn" data-choose-sound data-desktop-only title="Choisir un fichier MP3, WAV ou OGG">📁 Fichier…</button>
                 <button class="btn" data-test-sound>▶ Écouter</button>
               </div>
             </label>
@@ -112,7 +143,7 @@ const Settings = (() => {
             <button class="btn" data-test-popup style="align-self:flex-start">Tester le pop-up</button>
           </section>
 
-          <section class="card">
+          <section class="card" data-desktop-only>
             <h2>Widgets de bureau</h2>
             <label class="switch"><input type="checkbox" data-widget="todo" ${checked(s.widgets.todo.visible)}>Afficher la to-do list sur le bureau</label>
             <label class="switch"><input type="checkbox" data-widget="edt" ${checked(s.widgets.edt.visible)}>Afficher l’emploi du temps du jour sur le bureau</label>
@@ -123,7 +154,7 @@ const Settings = (() => {
               appuie sur <kbd>${U.esc(s.shortcuts.widgetsFront || '—')}</kbd> pour le faire passer au premier plan. Il repasse derrière dès que tu cliques ailleurs.</p>
           </section>
 
-          <section class="card">
+          <section class="card" data-desktop-only>
             <h2>Raccourcis clavier</h2>
             ${SHORTCUTS.map(
               ([k, l]) => `<label class="field">${l}
@@ -147,16 +178,17 @@ const Settings = (() => {
 
           <section class="card">
             <h2>Agendas externes</h2>
-            <p class="small muted" style="margin:0">Google Agenda : Paramètres de l’agenda → « Adresse secrète au format iCal ». Colle ce lien ici.
+            <p class="small muted" data-web-only>Les agendas se gèrent sur le PC ; leurs événements arrivent ici avec la synchronisation.</p>
+            <p class="small muted" style="margin:0" data-desktop-only>Google Agenda : Paramètres de l’agenda → « Adresse secrète au format iCal ». Colle ce lien ici.
               Outlook : Paramètres → Calendrier → Calendriers partagés → Publier → lien ICS.</p>
-            <div>${s.icsFeeds.length ? s.icsFeeds.map((f) => `<div class="feed"><span class="dot" style="background:${f.color}"></span><span class="grow">${U.esc(f.name)}</span><span class="small muted">${f.url ? 'lien' : 'fichier'}</span><button class="btn small ghost danger" data-remove-feed="${f.id}">Retirer</button></div>`).join('') : '<span class="muted small">Aucun agenda importé.</span>'}</div>
-            <form class="row wrap" data-add-feed>
+            <div>${s.icsFeeds.length ? s.icsFeeds.map((f) => `<div class="feed"><span class="dot" style="background:${f.color}"></span><span class="grow">${U.esc(f.name)}</span><span class="small muted">${f.url ? 'lien' : 'fichier'}</span><button class="btn small ghost danger" data-remove-feed="${f.id}" data-desktop-only>Retirer</button></div>`).join('') : '<span class="muted small">Aucun agenda importé.</span>'}</div>
+            <form class="row wrap" data-add-feed data-desktop-only>
               <input class="input" name="name" placeholder="Nom" style="width:120px" required>
               <input class="input grow" name="url" placeholder="https://… .ics" required>
               <input type="color" class="swatch-custom" name="color" value="#8a8f98" title="Couleur">
               <button class="btn primary" type="submit">Ajouter</button>
             </form>
-            <div class="row">
+            <div class="row" data-desktop-only>
               <button class="btn" data-import-ics>📁 Importer un fichier .ics</button>
               <button class="btn" data-refresh-ics>↻ Actualiser</button>
             </div>
@@ -164,21 +196,25 @@ const Settings = (() => {
 
           <section class="card">
             <h2>Sauvegarde</h2>
-            <p class="small muted" style="margin:0">Une copie de tes données est faite automatiquement chaque jour (10 dernières conservées).</p>
+            <p class="small muted" style="margin:0" data-desktop-only>Une copie de tes données est faite automatiquement chaque jour (10 dernières conservées).</p>
             <div class="row wrap">
               <button class="btn" data-export>⬇ Exporter mes données</button>
               <button class="btn" data-import>⬆ Restaurer une sauvegarde</button>
-              <button class="btn ghost" data-open-backups>Ouvrir le dossier des sauvegardes</button>
+              <button class="btn ghost" data-open-backups data-desktop-only>Ouvrir le dossier des sauvegardes</button>
             </div>
           </section>
 
           <section class="card">
             <h2>Mises à jour</h2>
-            <p class="small muted">Version installée : <b>${U.esc(info.version)}</b>. L'appli vérifie toute seule au démarrage puis toutes les 4 heures,
-              télécharge les nouvelles versions en arrière-plan et les installe quand tu la quittes.</p>
+            <p class="small muted">Version installée : <b>${U.esc(info.version)}</b>.
+              ${
+                info.web
+                  ? "L'appli vérifie toute seule s'il existe une nouvelle version à chaque ouverture et te propose de recharger."
+                  : "L'appli vérifie toute seule au démarrage puis toutes les 4 heures, télécharge les nouvelles versions en arrière-plan et les installe quand tu la quittes."
+              }</p>
             <div class="row wrap">
               <button class="btn" data-check-update>↻ Rechercher une mise à jour</button>
-              <button class="btn primary" data-install-update hidden>Redémarrer et mettre à jour</button>
+              <button class="btn primary" data-install-update hidden>${info.web ? 'Recharger' : 'Redémarrer et mettre à jour'}</button>
             </div>
             <p class="small" data-update-status></p>
           </section>
@@ -306,10 +342,111 @@ const Settings = (() => {
       renderUpdate();
     };
     U.$('[data-install-update]', root).onclick = () => api.installUpdate();
+
+    bindSync();
+    if (info.web) bindPhone();
     api.updateStatus().then((st) => {
       update = st;
       renderUpdate();
     });
+  }
+
+  // ---------- Synchronisation par code ----------
+
+  const syncName = () => `mon-planning-synchro-${new Date().toISOString().slice(0, 10)}.mpsync`;
+
+  async function makeCode() {
+    const includeBoards = U.$('[data-sync-boards]', root).checked;
+    return Sync.encode(await api.syncPayload({ includeBoards }));
+  }
+
+  function syncInfo(text) {
+    U.$('[data-sync-info]', root).textContent = text;
+  }
+
+  const sizeLabel = (code) => (code.length > 1000 ? `${Math.round(code.length / 1000)} 000 caractères` : `${code.length} caractères`);
+
+  async function merge(code) {
+    if (!code.trim()) return U.toast('Colle d’abord le code de l’autre appareil.', 'error');
+    try {
+      const incoming = await Sync.decode(code);
+      const message = await api.syncMerge(incoming);
+      U.toast(`Synchronisé : ${message}`);
+    } catch (err) {
+      U.toast(cleanError(err), 'error');
+    }
+  }
+
+  function bindSync() {
+    U.$('[data-sync-copy]', root).onclick = async () => {
+      const code = await makeCode();
+      try {
+        await navigator.clipboard.writeText(code);
+        syncInfo(`Code copié (${sizeLabel(code)}). Colle-le dans un message pour toi-même, puis sur l’autre appareil.`);
+        U.toast('Code copié');
+      } catch {
+        // Presse-papiers refusé : on affiche le code pour une copie à la main
+        U.$('[data-sync-input]', root).value = code;
+        syncInfo('Copie automatique impossible : sélectionne le code ci-dessous et copie-le.');
+      }
+      if (code.length > 60000) syncInfo(`Code très long (${sizeLabel(code)}) : certaines messageries le coupent. Utilise plutôt « En fichier », ou décoche le brainstorming.`);
+    };
+    U.$('[data-sync-share]', root).onclick = async () => {
+      const code = await makeCode();
+      if (!(await api.shareText(code, 'Code Mon Planning'))) U.toast('Partage impossible : utilise « Copier mon code ».', 'error');
+    };
+    U.$('[data-sync-file]', root).onclick = async () => {
+      const blob = new Blob([await makeCode()], { type: 'text/plain' });
+      if (info.web) return api.shareFile(blob, syncName());
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = syncName();
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    };
+    U.$('[data-sync-paste]', root).onclick = async () => {
+      try {
+        U.$('[data-sync-input]', root).value = await navigator.clipboard.readText();
+      } catch {
+        U.toast('Lecture du presse-papiers refusée : appuie longuement dans la case puis « Coller ».', 'error');
+      }
+    };
+    U.$('[data-sync-merge]', root).onclick = () => merge(U.$('[data-sync-input]', root).value);
+    U.$('[data-sync-open]', root).onclick = () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.mpsync,.txt,text/plain';
+      input.onchange = async () => input.files[0] && merge(await input.files[0].text());
+      input.click();
+    };
+  }
+
+  // ---------- Téléphone : installation et notifications ----------
+
+  function bindPhone() {
+    const installBtn = U.$('[data-install-app]', root);
+    const refreshInstall = () => {
+      installBtn.hidden = !api.canInstall();
+      U.$('[data-install-help]', root).hidden = api.canInstall() || matchMedia('(display-mode: standalone)').matches;
+    };
+    refreshInstall();
+    api.onInstallAvailable(refreshInstall);
+    installBtn.onclick = async () => {
+      if (await api.install()) U.toast('Appli installée sur l’écran d’accueil');
+      refreshInstall();
+    };
+    const status = U.$('[data-notif-status]', root);
+    const labels = { granted: 'autorisées ✓', denied: 'bloquées (à changer dans les réglages Android de Chrome)', default: '', unsupported: 'non disponibles' };
+    const refreshNotif = () => {
+      const p = api.notificationPermission();
+      status.textContent = labels[p] ?? '';
+      U.$('[data-allow-notif]', root).hidden = p === 'granted' || p === 'unsupported';
+    };
+    refreshNotif();
+    U.$('[data-allow-notif]', root).onclick = async () => {
+      await api.requestNotifications();
+      refreshNotif();
+    };
   }
 
   // Retire le préfixe technique ajouté par Electron aux erreurs IPC

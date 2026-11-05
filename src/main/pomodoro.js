@@ -89,4 +89,5 @@ class Pomodoro {
   }
 }
 
-module.exports = { Pomodoro };
+if (typeof module === 'object' && module.exports) module.exports = { Pomodoro };
+else self.Pomodoro = Pomodoro;
